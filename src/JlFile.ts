@@ -1,9 +1,9 @@
-import { resolve, basename, extname } from "node:path"
-import { readFile, stat, mkdir, rmdir, readdir } from 'node:fs/promises'
+import { resolve, basename, extname, dirname, join } from "node:path"
+import { readFile, stat, mkdir, rmdir, readdir, rename } from 'node:fs/promises'
 
 
 export class JlFile {
-    parent = null
+    parent: null | JlFile = null
 
     private constructor(
         public filename: string,
@@ -70,53 +70,72 @@ export class JlFile {
 
     /** 深度递归获取所有子文件，每个文件对象都有父指针 */
     static async getAllChildren(filename: string) {
-        const 
-            pathSet = new Set<string>(),
-            repeatIndexArr: number[] = [],
-            resArr = await JlFile.getRepeatChildren(filename)
+        const
+            /** 存放重复文件夹映射关系 @example { 文件名: [index, ...], ... } */
+            folderMap: any = {},
+            { fileArr, folders } = await JlFile.getRepeatChildren(filename)
 
-        resArr.forEach((item, index) => {
-            if (!pathSet.has(item.filename)) {
-                pathSet.add(item.filename)
+        folders.forEach((index) => {
+            const name = fileArr[index].filename
+            if (folderMap[name]) {
+                folderMap[name].push(index)
             }
             else {
-                repeatIndexArr.push(index)
+                folderMap[name] = [index]
             }
         })
 
-        /** 删除多余的 */
-        repeatIndexArr.forEach((item, i) => {
-            resArr.splice(item - i, 1)
+        // 删除重复的文件夹
+        let delCount = 0
+        Object.entries(folderMap).forEach(([_k, indexArr]: any) => {
+            // 说明没有重复
+            if (indexArr.length === 1) return 
+
+            indexArr.slice(1).forEach((index: number) => {
+                fileArr.splice(index - delCount++, 1)
+            })
         })
-        return resArr
+
+        return fileArr
     }
 
-    /** 得到一个深度递归的文件数组，文件夹为重复的，所以这个方法不对外暴露。请调用 getAllChildren */
+    /**
+     * 得到一个深度递归的文件数组，文件夹为重复的，所以这个方法不对外暴露。请调用 getAllChildren
+     * @returns 重复的文件数组 和 重复索引的数组
+     */
     private static async getRepeatChildren(
         filename: string,
         parent: JlFile | null | undefined = null,
-        resArr: JlFile[] = [],
-        excludeSet = new Set<string>()
+        fileArr: JlFile[] = [],
+        excludeSet = new Set<string>(),
+        index = 0,
+        folders: number[] = []
     ) {
         const myFile = await JlFile.genFile(filename)
         myFile.parent = parent
 
         if (myFile.isFile) {
-            resArr.push(myFile)
+            fileArr.push(myFile)
             excludeSet.add(filename)
-            return resArr
+            return { fileArr, folders }
         }
 
         excludeSet.add(filename)
         const childrenFileArr = await genFileArr(myFile)
 
+        /** 便利子文件夹，加入排除数组和文件夹数组 */
         childrenFileArr.forEach((item) => {
             /** 添加所有子节点以及自身 */
-            resArr.push(item)
+            fileArr.push(item)
 
             /** 把添加过的 并且不是文件夹的排除 */
             if (item.isFile) {
                 excludeSet.add(item.filename)
+                index++
+            }
+            else {
+                // 记录文件夹索引，因为会重复
+                folders.push(index++)
             }
         })
 
@@ -127,10 +146,17 @@ export class JlFile {
                 continue
             }
 
-            await JlFile.getRepeatChildren(item.filename, myFile, resArr, excludeSet)
+            await JlFile.getRepeatChildren(
+                item.filename,
+                myFile,
+                fileArr,
+                excludeSet,
+                index,
+                folders
+            )
         }
 
-        return resArr
+        return { fileArr, folders }
     }
 
     /** ====================== 静态方法 ====================== */
@@ -161,6 +187,15 @@ export class JlFile {
             const result = resolve(this.filename, name)
             return JlFile.genFile(result)
         }))
+    }
+
+    rename(newName: string) {
+        const dir = dirname(this.filename)
+        return rename(this.filename, join(dir, newName))
+    }
+
+    move(newPath: string) {
+        return rename(this.filename, newPath)
     }
 }
 

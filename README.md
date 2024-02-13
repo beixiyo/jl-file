@@ -36,15 +36,14 @@ export declare class JlFile {
     size: number;
     createTime: Date;
     updateTime: Date;
-    parent: any;
-   
+    parent: null | JlFile;
+
     /** ====================== 静态方法 ====================== */
     /** 异步创建文件实例 */
     static genFile(filename: string): Promise<JlFile>;
 
     /** 读取子文件 */
     static readDir(dirname: string): Promise<JlFile[]>;
-
     /**
      * 创建文件夹
      * @param dirname 文件夹路径
@@ -56,13 +55,22 @@ export declare class JlFile {
 
     /** 深度递归获取所有子文件，每个文件对象都有父指针 */
     static getAllChildren(filename: string): Promise<JlFile[]>;
-
+    /**
+     * 得到一个深度递归的文件数组，文件夹为重复的，所以这个方法不对外暴露。请调用 getAllChildren
+     * @returns 重复的文件数组 和 重复索引的数组
+     */
     /** ====================== 静态方法 ====================== */
+
 
     /** 获取当前文件内容 */
     getContent(isBuffer?: boolean): Promise<string | Buffer>;
 
     /** 获取当前文件子级 */
     getChildren(): Promise<JlFile[]>;
+
+    rename(newName: string): Promise<void>;
+    
+    move(newPath: string): Promise<void>;
 }
+
 ```
