@@ -2,6 +2,9 @@ import { resolve, basename, extname, dirname, join } from "node:path"
 import { readFile, stat, mkdir, rmdir, readdir, rename } from 'node:fs/promises'
 
 
+/**
+ * 请调用静态方法创建实例，因为是异步创建的，不能 new
+ */
 export class JlFile {
     parent: null | JlFile = null
 
@@ -57,6 +60,7 @@ export class JlFile {
         mkdir(dirname, { recursive: true })
     }
 
+    /** 是否存在 */
     static async isExist(path: string) {
         try {
             await stat(path)
@@ -159,7 +163,7 @@ export class JlFile {
         return { fileArr, folders }
     }
 
-    /** ====================== 静态方法 ====================== */
+    /** ====================== ------- ====================== */
 
 
     /** 获取当前文件内容 */
@@ -189,11 +193,13 @@ export class JlFile {
         }))
     }
 
+    /** 重命名 */
     rename(newName: string) {
         const dir = dirname(this.filename)
         return rename(this.filename, join(dir, newName))
     }
 
+    /** 移动 */
     move(newPath: string) {
         return rename(this.filename, newPath)
     }
