@@ -6,6 +6,7 @@ import { readFile, stat, mkdir, rmdir, readdir, rename } from 'node:fs/promises'
  * 请调用静态方法创建实例，因为是异步创建的，不能 new
  */
 export class JlFile {
+    /** 父级，只有调用 JlFile.getAllChildren，才会有值 */
     parent: null | JlFile = null
 
     private constructor(
@@ -34,7 +35,7 @@ export class JlFile {
         return new JlFile(filename, name, ext, isFile, size, createTime, updateTime)
     }
 
-    /** 读取子文件 */
+    /** 读取子文件，同 JlFile.getChildren 方法，只不过改成静态方法 */
     static async readDir(dirname: string) {
         const file = await JlFile.genFile(dirname)
         return await file.getChildren()
@@ -113,7 +114,7 @@ export class JlFile {
         fileArr: JlFile[] = [],
         excludeSet = new Set<string>(),
         index = 0,
-        folders: number[] = []
+        folders = new Set<number>()
     ) {
         const myFile = await JlFile.genFile(filename)
         myFile.parent = parent
@@ -139,7 +140,7 @@ export class JlFile {
             }
             else {
                 // 记录文件夹索引，因为会重复
-                folders.push(index++)
+                folders.add(index++)
             }
         })
 
@@ -166,7 +167,10 @@ export class JlFile {
     /** ====================== ------- ====================== */
 
 
-    /** 获取当前文件内容 */
+    /**
+     * 获取当前文件内容
+     * @param isBuffer 使用 Buffer 读取
+     */
     async getContent(isBuffer = false) {
         if (this.isFile) {
             if (isBuffer) {
@@ -177,6 +181,17 @@ export class JlFile {
             }
         }
         return null
+    }
+
+    /** 递归获取当前文件实例所有内容的大小 */
+    async getAllSize() {
+        let size = 0
+        const children = await JlFile.getAllChildren(this.filename)
+        children.forEach((item) => {
+            size += item.size
+        })
+
+        return size
     }
 
     /** 获取当前文件子级 */
