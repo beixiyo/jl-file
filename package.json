@@ -1,6 +1,6 @@
 {
     "name": "@jl-org/file",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "处理文件",
     "main": "dist/index.cjs",
     "module": "dist/index.js",

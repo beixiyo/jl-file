@@ -26,6 +26,8 @@ const path = resolve(__dirname, './');
 
     console.log(allChildren)
     console.log(allChildren.length)
+
+    // 详见下面类型定义...
 })()
 
 ```
@@ -33,7 +35,6 @@ const path = resolve(__dirname, './');
 ### 文件操作
 
 ```ts
-/// <reference types="node" />
 /**
  * 请调用静态方法创建实例，因为是异步创建的，不能 new
  */
@@ -63,6 +64,14 @@ export declare class JlFile {
      */
     static createDir(dirname: string, isForce?: boolean): Promise<void>;
 
+    /**
+     * 创建文件
+     * @param filename 路径
+     * @param content 创建时加入的内容
+     * @param isForce 已存在时，是否强制创建
+     */
+    static touch(filename: string, content?: string, isForce?: boolean): Promise<void>;
+
     /** 是否存在 */
     static isExist(path: string): Promise<boolean>;
 
@@ -88,5 +97,11 @@ export declare class JlFile {
 
     /** 移动 */
     move(newPath: string): Promise<void>;
+
+    /** 写入文件，参数同 writeFile */
+    write(content: WriteType[1], opt?: writeOpt): Promise<void>;
+
+    /** 删除文件 */
+    del(opt: RmOptions): Promise<void>;
 }
 ```

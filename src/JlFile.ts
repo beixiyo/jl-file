@@ -1,5 +1,6 @@
 import { resolve, basename, extname, dirname, join } from "node:path"
-import { readFile, stat, mkdir, rmdir, readdir, rename } from 'node:fs/promises'
+import { readFile, stat, mkdir, rmdir, readdir, rename, writeFile, rm } from 'node:fs/promises'
+import type { RmOptions } from 'node:fs'
 
 
 /**
@@ -61,6 +62,26 @@ export class JlFile {
         mkdir(dirname, { recursive: true })
     }
 
+    /**
+     * 创建文件
+     * @param filename 路径
+     * @param content 创建时加入的内容
+     * @param isForce 已存在时，是否强制创建
+     */
+    static async touch(filename: string, content = '', isForce = false) {
+        const isExist = await JlFile.isExist(filename)
+        if (isExist) {
+            if (isForce) {
+                await rm(filename, { recursive: true, force: true })
+            }
+            else {
+                throw new Error('file is exist (文件已存在)')
+            }
+        }
+
+        return writeFile(filename, content)
+    }
+
     /** 是否存在 */
     static async isExist(path: string) {
         try {
@@ -94,7 +115,7 @@ export class JlFile {
         let delCount = 0
         Object.entries(folderMap).forEach(([_k, indexArr]: any) => {
             // 说明没有重复
-            if (indexArr.length === 1) return 
+            if (indexArr.length === 1) return
 
             indexArr.slice(1).forEach((index: number) => {
                 fileArr.splice(index - delCount++, 1)
@@ -218,6 +239,16 @@ export class JlFile {
     move(newPath: string) {
         return rename(this.filename, newPath)
     }
+
+    /** 写入文件，参数同 writeFile */
+    write(content: WriteType[1], opt?: writeOpt) {
+        return writeFile(this.filename, content, opt)
+    }
+
+    /** 删除文件 */
+    del(opt: RmOptions) {
+        return rm(this.filename, opt)
+    }
 }
 
 /** 把 MyFile 的子文件都添加上父级指针，并且一并放入数组返回 */
@@ -233,3 +264,44 @@ async function genFileArr(file: JlFile) {
         ...newChildren
     ]
 }
+
+
+type WriteType = Parameters<typeof writeFile>
+type writeOpt = WriteType[2] & {
+    flag: FileFlag
+}
+
+/**
+ * 以下标志在 flag 选项接受字符串的任何地方可用。
+
+    'a': 打开文件进行追加。 如果文件不存在，则创建该文件。
+
+    'ax': 类似于 'a' 但如果路径存在则失败。
+
+    'a+': 打开文件进行读取和追加。 如果文件不存在，则创建该文件。
+
+    'ax+': 类似于 'a+' 但如果路径存在则失败。
+
+    'as': 以同步模式打开文件进行追加。 如果文件不存在，则创建该文件。
+
+    'as+': 以同步模式打开文件进行读取和追加。 如果文件不存在，则创建该文件。
+
+    'r': 打开文件进行读取。 如果文件不存在，则会发生异常。
+
+    'r+': 打开文件进行读写。 如果文件不存在，则会发生异常。
+
+    'rs+': 以同步模式打开文件进行读写。 指示操作系统绕过本地文件系统缓存。
+
+    这主要用于在 NFS 挂载上打开文件，因为它允许跳过可能过时的本地缓存。 它对 I/O 性能有非常实际的影响，因此除非需要，否则不建议使用此标志。
+
+    这不会将 fs.open() 或 fsPromises.open() 变成同步阻塞调用。 如果需要同步操作，应该使用类似 fs.openSync() 的东西。
+
+    'w': 打开文件进行写入。 创建（如果它不存在）或截断（如果它存在）该文件。
+
+    'wx': 类似于 'w' 但如果路径存在则失败。
+
+    'w+': 打开文件进行读写。 创建（如果它不存在）或截断（如果它存在）该文件。
+
+    'wx+': 类似于 'w+' 但如果路径存在则失败。
+ */
+type FileFlag = 'a' | 'ax' | 'a+' | 'ax+' | 'as' | 'as+' | 'r' | 'r+' | 'rs+' | 'w' | 'wx' | 'w+' | 'wx+'
