@@ -22,6 +22,7 @@
     "scripts": {
         "build": "rollup -c && tsc-alias"
     },
+    "homepage": "https://github.com/beixiyo/jl-file",
     "keywords": [
         "jl",
         "file",

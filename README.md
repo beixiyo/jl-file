@@ -1,5 +1,5 @@
 # 介绍
-文件处理函数。一行代码即可获取所有子级文件，以及各种常用文件操作。
+一行代码，轻松递归遍历整个磁盘。包含各种常用文件操作
 
 
 ## 安装
@@ -14,22 +14,27 @@ import { JlFile } from '@jl-org/file'
 import { resolve } from 'node:path'
 
 
-const path = resolve(__dirname, './');
+const path = resolve(process.cwd(), './要查的路径');
 
 (async function () {
-    /** 生成一个文件实例 */
-    const file = await JlFile.genFile(path),
+
+    const
+        /** 生成一个文件实例 */
+        file = await JlFile.genFile(path),
         /** 查找当前实例的文件子级 */
         children = await file.getChildren(),
+
         /** 递归查找所有子文件(夹) */
-        allChildren = await JlFile.getAllChildren(path)
+        allChildren = await JlFile.getAllChildren(path),
+        /** 递归查找当前路径所有文件大小 */
+        allSize = await file.getAllSize()
 
     console.log(allChildren)
     console.log(allChildren.length)
+    console.log(`${allSize}字节，约${(allSize / 1024 / 1024).toFixed(2)}MB`)
 
     // 详见下面类型定义...
 })()
-
 ```
 
 ### 文件操作
