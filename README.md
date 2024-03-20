@@ -101,7 +101,7 @@ export declare class JlFile {
     /** 写入文件，参数同 writeFile */
     write(content: WriteType[1], opt?: writeOpt): Promise<void>;
     /**
-     * 删除文件，会自动判断是文件还是文件夹
+     * 删除文件或文件夹
      * @param opt 当文件夹有子文件时，请设置 recursive: true
      */
     del(opt: RmOptions): Promise<void>;

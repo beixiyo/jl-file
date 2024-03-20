@@ -252,14 +252,11 @@ export class JlFile {
     }
 
     /** 
-     * 删除文件，会自动判断是文件还是文件夹 
+     * 删除文件或文件夹
      * @param opt 当文件夹有子文件时，请设置 recursive: true
      */
     del(opt: RmOptions) {
-        if (this.isFile) {
-            return rm(this.filename, opt)
-        }
-        return rmdir(this.filename, opt)
+        return rm(this.filename, opt)
     }
 }
 
