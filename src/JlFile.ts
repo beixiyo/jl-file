@@ -1,6 +1,7 @@
 import { resolve, basename, extname, dirname, join } from "node:path"
-import { readFile, stat, mkdir, rmdir, readdir, rename, writeFile, rm } from 'node:fs/promises'
-import type { RmOptions } from 'node:fs'
+import { readFile, stat, mkdir, rmdir, readdir, rename, writeFile, rm, cp, copyFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import type { CopyOptions, RmOptions } from 'node:fs'
 
 
 /**
@@ -83,15 +84,8 @@ export class JlFile {
     }
 
     /** 是否存在 */
-    static async isExist(path: string) {
-        try {
-            await stat(path)
-            return true
-        }
-        catch (err) {
-            if (err.code === 'ENOENT') return false
-            throw err
-        }
+    static isExist(path: string) {
+        return existsSync(path)
     }
 
     /** 深度递归获取所有子文件，每个文件对象都有父指针 */
@@ -185,8 +179,7 @@ export class JlFile {
         return { fileArr, folders }
     }
 
-    /** ====================== ------- ====================== */
-
+    /** ====================== 实例方法 ====================== */
 
     /**
      * 获取当前文件内容
@@ -240,14 +233,33 @@ export class JlFile {
         return rename(this.filename, newPath)
     }
 
+    /**
+     * 复制，会自动判断是否为文件夹
+     * @param newPath 目标路径
+     * @param opt 复制文件夹时的配置项，当文件夹有子文件时，请设置 recursive: true
+     * @param mode 复制文件的模式
+     */
+    cp(newPath: string, opt: CopyOptions, mode?: number) {
+        if (this.isFile) {
+            return copyFile(this.filename, newPath, mode)
+        }
+        return cp(this.filename, newPath, opt)
+    }
+
     /** 写入文件，参数同 writeFile */
     write(content: WriteType[1], opt?: writeOpt) {
         return writeFile(this.filename, content, opt)
     }
 
-    /** 删除文件 */
+    /** 
+     * 删除文件，会自动判断是文件还是文件夹 
+     * @param opt 当文件夹有子文件时，请设置 recursive: true
+     */
     del(opt: RmOptions) {
-        return rm(this.filename, opt)
+        if (this.isFile) {
+            return rm(this.filename, opt)
+        }
+        return rmdir(this.filename, opt)
     }
 }
 
