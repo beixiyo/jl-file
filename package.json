@@ -1,51 +1,53 @@
 {
-    "name": "@jl-org/file",
-    "version": "0.1.1",
-    "description": "处理文件",
-    "main": "dist/index.cjs",
-    "module": "dist/index.js",
-    "type": "module",
-    "types": "dist/typings/index.d.ts",
-    "files": [
-        "/dist"
-    ],
-    "exports": {
-        "require": {
-            "types": "./dist/typings/index.d.ts",
-            "default": "./dist/index.cjs"
-        },
-        "import": {
-            "types": "./dist/typings/index.d.ts",
-            "default": "./dist/index.js"
-        }
+  "name": "@jl-org/file",
+  "version": "1.0.0",
+  "description": "现代化、轻量、简洁的文件处理工具库",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "type": "module",
+  "types": "dist/typings/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "exports": {
+    "require": {
+      "types": "./dist/typings/index.d.ts",
+      "default": "./dist/index.cjs"
     },
-    "scripts": {
-        "build": "rollup -c && tsc-alias"
-    },
-    "homepage": "https://github.com/beixiyo/jl-file",
-    "keywords": [
-        "jl",
-        "file",
-        "files",
-        "jlfile",
-        "jlfiles",
-        "jl-file",
-        "jl-files"
-    ],
-    "author": "cjl",
-    "license": "MIT",
-    "devDependencies": {
-        "@rollup/plugin-alias": "^5.1.0",
-        "@rollup/plugin-node-resolve": "^15.2.3",
-        "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^11.1.5",
-        "@types/node": "^20.11.17",
-        "rollup": "^4.6.1",
-        "rollup-plugin-clear": "^2.0.7",
-        "tsc-alias": "^1.8.8",
-        "tslib": "^2.6.2"
-    },
-    "publishConfig": {
-        "access": "public"
+    "import": {
+      "types": "./dist/typings/index.d.ts",
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "build": "rollup -c && tsc-alias",
+    "prepublishOnly": "npm run build",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "homepage": "https://github.com/beixiyo/jl-file",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beixiyo/jl-file.git"
+  },
+  "keywords": [
+    "file"
+  ],
+  "author": "CJL <2662442385@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/node": "^22.12.0",
+    "rollup": "^4.6.1",
+    "rollup-plugin-clear": "^2.0.7",
+    "tsc-alias": "^1.8.8",
+    "tslib": "^2.6.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

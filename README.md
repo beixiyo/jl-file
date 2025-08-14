@@ -1,114 +1,102 @@
-# 介绍
-一行代码，轻松递归遍历整个磁盘。包含各种常用文件操作
+# @jl-org/file 📁
 
+<div align="center">
+  <img alt="npm-version" src="https://img.shields.io/npm/v/@jl-org/file?color=red&logo=npm" />
+  <img alt="License" src="https://img.shields.io/npm/l/@jl-org/file?color=blue" />
+  <img alt="typescript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
+  <img alt="vitest" src="https://img.shields.io/badge/Vitest-646CFF?logo=vitest&logoColor=white" />
+  <img alt="node.js" src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white" />
+  <img alt="github" src="https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white" />
+</div>
 
-## 安装
+<div align="center">
+  <a href="./README.md">中文</a>
+  <span>|</span>
+  <a href="./README.en.md">English</a>
+</div>
+
+<div align="center">
+  现代化、轻量、简洁的文件处理工具库，提供现代化的 API 和强大的功能
+</div>
+
+## 🌟 特性
+
+- 🔄 **异步创建实例** - 所有文件操作都是异步的，避免阻塞主线程
+- 📂 **深度递归遍历** - 轻松获取整个目录结构和所有子文件
+- 🔗 **父级指针引用** - 每个文件对象都有指向父级的引用，方便向上查找
+- 🛡️ **自动检查机制** - 创建文件时自动检查目录是否存在
+- 📏 **详细文件信息** - 获取文件大小、创建时间、修改时间等元数据
+- 🧠 **智能覆盖策略** - 支持安全的文件/目录覆盖操作
+
+## 📦 安装
+
 ```bash
-npm i @jl-org/file
+npm install @jl-org/file
+# 或
+yarn add @jl-org/file
+# 或
+pnpm add @jl-org/file
 ```
 
-## 使用
+## 🚀 使用
 
 ```ts
 import { JlFile } from '@jl-org/file'
-import { resolve } from 'node:path'
 
+// 创建文件实例
+const file = await JlFile.genFile('/path/to/file.txt')
 
-const path = resolve(process.cwd(), './要查的路径');
+// 读取文件内容
+const content = await file.getContent()
 
-(async function () {
+// 获取文件大小
+const size = await file.getAllSize()
 
-    const
-        /** 生成一个文件实例 */
-        file = await JlFile.genFile(path),
-        /** 查找当前实例的文件子级 */
-        children = await file.getChildren(),
+// 获取所有子文件（深度递归）
+const allChildren = await JlFile.getAllChildren('/path/to/directory')
 
-        /** 递归查找所有子文件(夹) */
-        allChildren = await JlFile.getAllChildren(path),
-        /** 递归查找当前路径所有文件大小 */
-        allSize = await file.getAllSize()
-
-    console.log(allChildren)
-    console.log(allChildren.length)
-    console.log(`${allSize}字节，约${(allSize / 1024 / 1024).toFixed(2)}MB`)
-
-    // 详见下面类型定义...
-})()
+// 通过父级指针查找
+const parent = allChildren[0].parent
 ```
 
-### 文件操作
+## 📚 API
 
-```ts
-/**
- * 请调用静态方法创建实例，因为是异步创建的，不能 new
- */
-export declare class JlFile {
-    filename: string;
-    name: string;
-    ext: string;
-    isFile: boolean;
-    size: number;
-    createTime: Date;
-    updateTime: Date;
-    /** 父级，只有调用 JlFile.getAllChildren，才会有值 */
-    parent: null | JlFile;
+### 静态方法
 
-    /** ====================== 静态方法 ====================== */
-    /** 异步创建文件实例 */
-    static genFile(filename: string): Promise<JlFile>;
-    /** 读取子文件，同 JlFile.getChildren 方法，只不过改成静态方法 */
-    static readDir(dirname: string): Promise<JlFile[]>;
-    /**
-     * 创建文件夹
-     * @param dirname 文件夹路径
-     * @param isForce 已存在时，是否强制创建
-     */
-    static createDir(dirname: string, isForce?: boolean): Promise<void>;
-    /**
-     * 创建文件
-     * @param filename 路径
-     * @param content 创建时加入的内容
-     * @param isForce 已存在时，是否强制创建
-     */
-    static touch(filename: string, content?: string, isForce?: boolean): Promise<void>;
-    /** 是否存在 */
-    static isExist(path: string): boolean;
-    /** 深度递归获取所有子文件，每个文件对象都有父指针 */
-    static getAllChildren(filename: string): Promise<JlFile[]>;
+| 方法 | 描述 |
+|------|------|
+| `JlFile.genFile(path)` | 异步创建文件实例 |
+| `JlFile.readDir(path)` | 读取目录内容 |
+| `JlFile.mkdir(path, opts)` | 创建目录 |
+| `JlFile.touch(path, content, opts)` | 创建文件 |
+| `JlFile.isExist(path)` | 检查路径是否存在 |
+| `JlFile.getAllChildren(path)` | 深度递归获取所有子文件 |
+| `JlFile.search(dirPath, pattern, recursive)` | 在指定目录中搜索匹配模式的文件 |
 
-    /** ====================== 实例方法 ====================== */
-    /**
-     * 获取当前文件内容
-     * @param isBuffer 使用 Buffer 读取
-     */
-    getContent(isBuffer?: boolean): Promise<string | Buffer>;
-    /** 递归获取当前文件实例所有内容的大小 */
-    getAllSize(): Promise<number>;
-    /** 获取当前文件子级 */
-    getChildren(): Promise<JlFile[]>;
-    /** 重命名 */
-    rename(newName: string): Promise<void>;
-    /** 移动 */
-    move(newPath: string): Promise<void>;
-    /**
-     * 复制，会自动判断是否为文件夹
-     * @param newPath 目标路径
-     * @param opt 复制文件夹时的配置项，当文件夹有子文件时，请设置 recursive: true
-     * @param mode 复制文件的模式
-     */
-    cp(newPath: string, opt: CopyOptions, mode?: number): Promise<void>;
-    /** 写入文件，参数同 writeFile */
-    write(content: WriteType[1], opt?: writeOpt): Promise<void>;
-    /**
-     * 删除文件或文件夹
-     * @param opt 当文件夹有子文件时，请设置 recursive: true
-     */
-    del(opt: RmOptions): Promise<void>;
-}
+### 实例方法
 
-type WriteType = Parameters<typeof writeFile>;
-type writeOpt = WriteType[2] & {
-    flag: FileFlag;
-};
+| 方法 | 描述 |
+|------|------|
+| `file.getContent(isBuffer)` | 获取文件内容 |
+| `file.getAllSize()` | 获取文件总大小 |
+| `file.getChildren()` | 获取子文件列表 |
+| `file.rename(newName)` | 重命名文件 |
+| `file.mv(newPath)` | 移动文件 |
+| `file.cp(newPath, opts)` | 复制文件 |
+| `file.write(content, opts)` | 写入文件 |
+| `file.rm(opts)` | 删除文件 |
+| `file.isEqual(otherFile)` | 比较当前文件与另一个文件是否内容相同 |
+| `file.getStats()` | 获取文件状态 |
+| `file.setPermissions(mode)` | 设置文件权限 |
+| `file.isReadable()` | 检查文件是否可读 |
+| `file.isWritable()` | 检查文件是否可写 |
+| `file.isExecutable()` | 检查文件是否可执行 |
+| `file.watch(callback)` | 监听文件变化 |
+| `file.getHash(algorithm)` | 计算文件的哈希值 |
+
+## 🧪 测试
+
+```bash
+npm run test       # 运行测试（监听模式）
+npm run test:run   # 运行测试（单次执行）
 ```
