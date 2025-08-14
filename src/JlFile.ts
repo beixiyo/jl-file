@@ -118,6 +118,28 @@ export class JlFile {
 
   /**
    * 逐行读取文件内容
+   *
+   * 注意：为了确保文件资源被正确释放，请使用 `for await...of` 循环消费返回的迭代器。
+   * 如果创建了迭代器但没有消费它，需要手动调用迭代器的 `return()` 方法来释放资源。
+   *
+   * @example
+   * ```ts
+   * // 推荐用法
+   * for await (const line of file.readLine()) {
+   *   console.log(line)
+   * }
+   *
+   * // 如果需要提前退出，资源也会被自动释放
+   * for await (const line of file.readLine()) {
+   *   if (line === 'stop') break
+   * }
+   *
+   * // 如果创建了迭代器但没有消费，需要手动释放资源
+   * const iterator = file.readLine()
+   * // ...一些操作
+   * await iterator.return?.() // 释放资源
+   * ```
+   *
    * @returns AsyncIterableIterator<string>
    */
   async *readLine(): AsyncIterableIterator<string> {
@@ -135,8 +157,7 @@ export class JlFile {
       for await (const line of rl) {
         yield line
       }
-    }
-    finally {
+    } finally {
       rl.close()
       fileStream.destroy()
     }
