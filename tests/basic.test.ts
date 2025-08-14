@@ -71,13 +71,13 @@ describe('Basic File Operations', () => {
   describe('getContent', () => {
     it('should read file content as string', async () => {
       const file = await JlFile.genFile(testFile)
-      const content = await file.getContent()
+      const content = await file.getContent('utf-8')
       expect(content).toBe('Hello, world!')
     })
 
     it('should read file content as buffer', async () => {
       const file = await JlFile.genFile(testFile)
-      const content = await file.getContent(true)
+      const content = await file.getContent()
       expect(content).toBeInstanceOf(Buffer)
       expect(content?.toString()).toBe('Hello, world!')
     })

@@ -1,34 +1,17 @@
-import { writeFile } from 'node:fs/promises'
-import type { WriteFileOptions } from 'node:fs'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 
 /**
  * 文件写入选项类型
  */
-export type WriteType = Parameters<typeof writeFile>
-
+export type WriteFileParams = Parameters<typeof writeFile>
 /**
- * 文件写入选项扩展类型
+ * 创建文件夹参数
  */
-export type WriteOpt = WriteFileOptions & {
-  /**
-   * 文件打开标志
-   *
-   * - 'a': 打开文件进行追加。如果文件不存在，则创建该文件。
-   * - 'ax': 类似于 'a' 但如果路径存在则失败。
-   * - 'a+': 打开文件进行读取和追加。如果文件不存在，则创建该文件。
-   * - 'ax+': 类似于 'a+' 但如果路径存在则失败。
-   * - 'as': 以同步模式打开文件进行追加。如果文件不存在，则创建该文件。
-   * - 'as+': 以同步模式打开文件进行读取和追加。如果文件不存在，则创建该文件。
-   * - 'r': 打开文件进行读取。如果文件不存在，则会发生异常。
-   * - 'r+': 打开文件进行读写。如果文件不存在，则会发生异常。
-   * - 'rs+': 以同步模式打开文件进行读写。指示操作系统绕过本地文件系统缓存。
-   * - 'w': 打开文件进行写入。创建（如果它不存在）或截断（如果它存在）该文件。
-   * - 'wx': 类似于 'w' 但如果路径存在则失败。
-   * - 'w+': 打开文件进行读写。创建（如果它不存在）或截断（如果它存在）该文件。
-   * - 'wx+': 类似于 'w+' 但如果路径存在则失败。
-   */
-  flag?: FileFlag
-}
+export type CreateDirParams = Parameters<typeof mkdir>
+/**
+ * 读取文件参数
+ */
+export type ReadFileParams = Parameters<typeof readFile>
 
 /**
  * 创建文件选项类型
@@ -44,6 +27,24 @@ export type CreateFileOpts = {
    * @default true
    */
   autoCreateDir?: boolean
+  writeFileOptions?: WriteFileParams[2]
+}
+
+/**
+ * 创建文件夹选项
+ */
+export type CreateDirOpts = {
+  /**
+   * 已存在文件夹时，是否删除重建
+   * @default false
+   */
+  overwrite?: boolean
+  /**
+   * 创建文件夹选项
+   * @default
+   * { recursive: true }
+   */
+  mkdirOptions?: CreateDirParams[1]
 }
 
 /**

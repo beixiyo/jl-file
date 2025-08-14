@@ -47,7 +47,7 @@ import { JlFile } from '@jl-org/file'
 const file = await JlFile.genFile('/path/to/file.txt')
 
 // Read file content
-const content = await file.getContent()
+const content = await file.getContent('utf-8')
 
 // Get file size
 const size = await file.getAllSize()
@@ -77,7 +77,7 @@ const parent = allChildren[0].parent
 
 | Method | Description |
 |--------|-------------|
-| `file.getContent(isBuffer)` | Get file content |
+| `file.getContent(options?)` | Get file content |
 | `file.getAllSize()` | Get total file size |
 | `file.getChildren()` | Get subfile list |
 | `file.rename(newName)` | Rename file |

@@ -47,7 +47,7 @@ import { JlFile } from '@jl-org/file'
 const file = await JlFile.genFile('/path/to/file.txt')
 
 // 读取文件内容
-const content = await file.getContent()
+const content = await file.getContent('utf-8')
 
 // 获取文件大小
 const size = await file.getAllSize()
@@ -77,7 +77,7 @@ const parent = allChildren[0].parent
 
 | 方法 | 描述 |
 |------|------|
-| `file.getContent(isBuffer)` | 获取文件内容 |
+| `file.getContent(options?)` | 获取文件内容 |
 | `file.getAllSize()` | 获取文件总大小 |
 | `file.getChildren()` | 获取子文件列表 |
 | `file.rename(newName)` | 重命名文件 |

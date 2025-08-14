@@ -3,7 +3,7 @@ import { readFile, stat, mkdir, rmdir, readdir, rename, writeFile, rm, cp, copyF
 import { existsSync, constants, watch, createReadStream } from 'node:fs'
 import { createHash } from 'node:crypto'
 import type { CopyOptions, RmOptions, Mode } from 'node:fs'
-import type { CreateFileOpts, WriteOpt, WriteType } from './types'
+import type { CreateFileOpts, WriteFileParams, CreateDirOpts, ReadFileParams } from './types'
 
 /**
  * 文件操作类，提供对文件和目录的各种操作方法
@@ -72,21 +72,24 @@ export class JlFile {
    * @param opts 创建选项（不包含 autoCreateDir）
    * @returns Promise<void>
    */
-  static async mkdir(dirPath: string, opts?: Omit<CreateFileOpts, 'autoCreateDir'>): Promise<void> {
-    const { overwrite = false } = opts || {}
+  static async mkdir(dirPath: string, opts?: CreateDirOpts): Promise<void> {
+    const {
+      overwrite = false,
+      mkdirOptions = { recursive: true }
+    } = opts || {}
     const isExist = JlFile.isExist(dirPath)
 
     if (isExist) {
       if (overwrite) {
         await rmdir(dirPath, { recursive: true })
-        await mkdir(dirPath, { recursive: true })
+        await mkdir(dirPath, mkdirOptions)
         return
       }
 
       throw new Error('dir is exist (文件夹已存在)')
     }
 
-    await mkdir(dirPath, { recursive: true })
+    await mkdir(dirPath, mkdirOptions)
   }
 
   /**
@@ -97,7 +100,11 @@ export class JlFile {
    * @returns Promise<void>
    */
   static async touch(filePath: string, content = '', opts?: CreateFileOpts): Promise<void> {
-    const { overwrite = false, autoCreateDir = true } = opts || {}
+    const {
+      overwrite = false,
+      autoCreateDir = true,
+      writeFileOptions
+    } = opts || {}
     const isExist = JlFile.isExist(filePath)
 
     if (isExist) {
@@ -115,7 +122,7 @@ export class JlFile {
       }
     }
 
-    await writeFile(filePath, content)
+    await writeFile(filePath, content, writeFileOptions)
   }
 
   /**
@@ -256,17 +263,14 @@ export class JlFile {
 
   /**
    * 获取当前文件内容
-   * @param isBuffer 使用 Buffer 读取
    * @returns 文件内容或 null（如果是目录）
    */
-  async getContent(isBuffer = false): Promise<Buffer | string | null> {
+  async getContent(options?: ReadFileParams[1]): Promise<Buffer | string | null> {
     if (this.isFile) {
-      if (isBuffer) {
-        return await readFile(this.filePath)
-      } else {
-        return await readFile(this.filePath, 'utf-8')
-      }
+      const res = await readFile(this.filePath, options)
+      return res
     }
+
     return null
   }
 
@@ -341,7 +345,7 @@ export class JlFile {
    * @param opt 写入选项
    * @returns Promise<void>
    */
-  async write(content: WriteType[1], opt?: WriteOpt): Promise<void> {
+  async write(content: WriteFileParams[1], opt?: WriteFileParams[2]): Promise<void> {
     await writeFile(this.filePath, content, opt)
   }
 
@@ -377,8 +381,8 @@ export class JlFile {
 
     // 读取并比较文件内容
     const [content1, content2] = await Promise.all([
-      this.getContent(),
-      otherFile.getContent()
+      this.getContent('utf-8'),
+      otherFile.getContent('utf-8')
     ])
 
     return content1 === content2

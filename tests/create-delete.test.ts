@@ -58,14 +58,14 @@ describe('File Creation and Deletion', () => {
       expect(existsSync(newFile)).toBe(true)
 
       const file = await JlFile.genFile(newFile)
-      const content = await file.getContent()
+      const content = await file.getContent('utf-8')
       expect(content).toBe('content')
     })
 
     it('should overwrite existing file when overwrite is true', async () => {
       await JlFile.touch(testFile, 'new content', { autoCreateDir: true, overwrite: true })
       const file = await JlFile.genFile(testFile)
-      const content = await file.getContent()
+      const content = await file.getContent('utf-8')
       expect(content).toBe('new content')
     })
 

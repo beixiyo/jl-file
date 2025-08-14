@@ -61,7 +61,7 @@ describe('File Move and Copy Operations', () => {
       expect(existsSync(copyPath)).toBe(true)
 
       const copyFile = await JlFile.genFile(copyPath)
-      const content = await copyFile.getContent()
+      const content = await copyFile.getContent('utf-8')
       expect(content).toBe('Hello, world!')
     })
 
@@ -79,7 +79,7 @@ describe('File Move and Copy Operations', () => {
       const file = await JlFile.genFile(testFile)
       await file.write('new content')
 
-      const content = await file.getContent()
+      const content = await file.getContent('utf-8')
       expect(content).toBe('new content')
     })
   })
