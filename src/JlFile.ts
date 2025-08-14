@@ -1,5 +1,5 @@
 import { resolve, basename, extname, dirname, join } from 'node:path'
-import { readFile, mkdir, rmdir, readdir, rename, writeFile, rm, cp, copyFile, chmod, access } from 'node:fs/promises'
+import { readFile, mkdir, rmdir, readdir, rename, writeFile, rm, cp, copyFile, chmod, access, appendFile, unlink } from 'node:fs/promises'
 import { existsSync, constants, watch, createReadStream, statSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { createInterface } from 'node:readline'
@@ -113,7 +113,7 @@ export class JlFile {
     }
 
     // 追加内容到文件
-    await writeFile(this.filePath, finalContent, { flag: 'a' })
+    await appendFile(this.filePath, finalContent)
   }
 
   /**
@@ -482,7 +482,7 @@ export class JlFile {
    */
   async rename(newName: string): Promise<void> {
     const dir = dirname(this.filePath)
-    await rename(this.filePath, join(dir, newName))
+    return rename(this.filePath, join(dir, newName))
   }
 
   /**
@@ -491,7 +491,7 @@ export class JlFile {
    * @returns Promise<void>
    */
   async mv(newPath: string): Promise<void> {
-    await rename(this.filePath, newPath)
+    return rename(this.filePath, newPath)
   }
 
   /**
@@ -503,9 +503,9 @@ export class JlFile {
    */
   async cp(newPath: string, opt: CopyOptions, mode?: number): Promise<void> {
     if (this.isFile) {
-      await copyFile(this.filePath, newPath, mode)
+      return copyFile(this.filePath, newPath, mode)
     } else {
-      await cp(this.filePath, newPath, opt)
+      return cp(this.filePath, newPath, opt)
     }
   }
 
@@ -516,16 +516,24 @@ export class JlFile {
    * @returns Promise<void>
    */
   async write(content: WriteFileParams[1], opt?: WriteFileParams[2]): Promise<void> {
-    await writeFile(this.filePath, content, opt)
+    return writeFile(this.filePath, content, opt)
   }
 
   /**
    * 删除文件或目录
-   * @param opt 删除选项，当目录有子文件时，请设置 recursive: true
+   * @param opts 删除选项，当目录有子文件时，请设置 recursive: true
    * @returns Promise<void>
    */
-  async rm(opt: RmOptions): Promise<void> {
-    await rm(this.filePath, opt)
+  async rm(opts: RmOptions): Promise<void> {
+    return rm(this.filePath, opts)
+  }
+
+  /**
+   * 专门用于删除文件（不能删除目录）
+   * @returns Promise<void>
+   */
+  async unlink(): Promise<void> {
+    return unlink(this.filePath)
   }
 
   /**
