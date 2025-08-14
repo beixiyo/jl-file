@@ -59,6 +59,18 @@ const allChildren = await JlFile.getAllChildren('/path/to/directory')
 const parent = allChildren[0].parent
 ```
 
+### 特殊行为说明
+
+`touch` 和 `mkdir` 方法具有特殊的行为：
+
+1. 当目标文件/目录已存在时：
+   - 如果 `overwrite` 选项为 `true`，则会删除现有文件/目录并创建新的
+   - 如果 `overwrite` 选项为 `false`（默认），则会打印警告信息而不是抛出异常
+
+2. 当创建文件时：
+   - 如果父目录不存在且 `autoCreateDir` 选项为 `true`（默认），会自动创建父目录
+   - 如果父目录不存在且 `autoCreateDir` 选项为 `false`，则会打印警告信息而不是抛出异常
+
 ## 📚 API
 
 ### 静态方法

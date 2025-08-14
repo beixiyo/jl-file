@@ -68,6 +68,8 @@ export class JlFile {
 
   /**
    * 创建文件夹
+   * - 如果目录已存在且 overwrite 为 false（默认），会打印警告信息而不是抛出异常
+   * - 如果目录已存在且 overwrite 为 true，会先删除再重新创建
    * @param dirPath 文件夹路径
    * @param opts 创建选项（不包含 autoCreateDir）
    * @returns Promise<void>
@@ -86,7 +88,8 @@ export class JlFile {
         return
       }
 
-      throw new Error('dir is exist (文件夹已存在)')
+      console.warn('dir is exist (文件夹已存在)')
+      return
     }
 
     await mkdir(dirPath, mkdirOptions)
@@ -94,6 +97,10 @@ export class JlFile {
 
   /**
    * 创建文件
+   * - 如果文件已存在且 overwrite 为 false（默认），会打印警告信息而不是抛出异常
+   * - 如果文件已存在且 overwrite 为 true，会先删除再重新创建
+   * - 如果父目录不存在且 autoCreateDir 为 true（默认），会自动创建父目录
+   * - 如果父目录不存在且 autoCreateDir 为 false，会打印警告信息而不是抛出异常
    * @param filePath 文件路径
    * @param content 创建时加入的内容
    * @param opts 创建选项
@@ -111,11 +118,13 @@ export class JlFile {
       if (overwrite) {
         await rm(filePath, { recursive: true, force: true })
       } else {
-        throw new Error('file is exist (文件已存在)')
+        console.warn('file is exist (文件已存在)')
+        return
       }
     } else {
       if (!autoCreateDir) {
-        throw new Error('dir is not exist (文件夹不存在)')
+        console.warn('dir is not exist (文件夹不存在)')
+        return
       } else {
         const dir = dirname(filePath)
         await mkdir(dir, { recursive: true })

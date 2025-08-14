@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { JlFile } from '../src/JlFile'
 import { join } from 'node:path'
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
@@ -43,11 +43,20 @@ describe('File Creation and Deletion', () => {
       expect(existsSync(join(existingDir, 'file.txt'))).toBe(false)
     })
 
-    it('should throw error when directory exists and overwrite is false', async () => {
+    it('should warn when directory exists and overwrite is false', async () => {
       const existingDir = join(testDir, 'existing2')
       mkdirSync(existingDir)
 
-      await expect(JlFile.mkdir(existingDir, { overwrite: false })).rejects.toThrow('dir is exist')
+      // Mock console.warn to capture the warning
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
+
+      await JlFile.mkdir(existingDir, { overwrite: false })
+
+      // Check that console.warn was called with the expected message
+      expect(warnSpy).toHaveBeenCalledWith('dir is exist (文件夹已存在)')
+
+      // Restore console.warn
+      warnSpy.mockRestore()
     })
   })
 
@@ -69,15 +78,35 @@ describe('File Creation and Deletion', () => {
       expect(content).toBe('new content')
     })
 
-    it('should throw error when file exists and overwrite is false', async () => {
-      await expect(JlFile.touch(testFile, 'content', { autoCreateDir: true, overwrite: false }))
-        .rejects.toThrow('file is exist')
+    it('should warn when file exists and overwrite is false', async () => {
+      // Mock console.warn to capture the warning
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
+
+      await JlFile.touch(testFile, 'content', { autoCreateDir: true, overwrite: false })
+
+      // Check that console.warn was called with the expected message
+      expect(warnSpy).toHaveBeenCalledWith('file is exist (文件已存在)')
+
+      // Restore console.warn
+      warnSpy.mockRestore()
     })
 
-    it('should create parent directory when autoCreateDir is true', async () => {
-      const newFile = join(testDir, 'newdir', 'newfile.txt')
-      await JlFile.touch(newFile, 'content', { autoCreateDir: true, overwrite: false })
-      expect(existsSync(newFile)).toBe(true)
+    it('should warn when directory does not exist and autoCreateDir is false', async () => {
+      const newFile = join(testDir, 'nonexistent', 'newfile.txt')
+
+      // Mock console.warn to capture the warning
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
+
+      await JlFile.touch(newFile, 'content', { autoCreateDir: false, overwrite: false })
+
+      // Check that console.warn was called with the expected message
+      expect(warnSpy).toHaveBeenCalledWith('dir is not exist (文件夹不存在)')
+
+      // Restore console.warn
+      warnSpy.mockRestore()
+
+      // File should not be created
+      expect(existsSync(newFile)).toBe(false)
     })
   })
 

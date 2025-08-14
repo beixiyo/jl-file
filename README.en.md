@@ -59,6 +59,18 @@ const allChildren = await JlFile.getAllChildren('/path/to/directory')
 const parent = allChildren[0].parent
 ```
 
+### Special Behavior Notes
+
+The `touch` and `mkdir` methods have special behaviors:
+
+1. When the target file/directory already exists:
+   - If the `overwrite` option is `true`, it will delete the existing file/directory and create a new one
+   - If the `overwrite` option is `false` (default), it will print a warning message instead of throwing an exception
+
+2. When creating a file:
+   - If the parent directory doesn't exist and the `autoCreateDir` option is `true` (default), it will automatically create the parent directory
+   - If the parent directory doesn't exist and the `autoCreateDir` option is `false`, it will print a warning message instead of throwing an exception
+
 ## 📚 API
 
 ### Static Methods
