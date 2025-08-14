@@ -48,7 +48,7 @@ describe('File Search and Traversal', () => {
 
   describe('getAllSize', () => {
     it('should calculate total size of directory', async () => {
-      const dir = await JlFile.genFile(testDir)
+      const dir = JlFile.genFile(testDir)
       const size = await dir.getAllSize()
       expect(size).toBeGreaterThan(0)
     })

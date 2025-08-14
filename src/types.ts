@@ -48,6 +48,33 @@ export type CreateDirOpts = {
 }
 
 /**
+ * 读取目录选项
+ */
+export type ReadDirOpts = {
+  /**
+   * 目录不存在时，是否自动创建
+   * @default true
+   */
+  autoCreateDir?: boolean
+}
+
+/**
+ * Append 方法选项
+ */
+export type AppendOpts = {
+  /**
+   * 文件不存在时，是否自动创建
+   * @default true
+   */
+  autoCreate?: boolean
+  /**
+   * 是否在追加内容前添加换行符
+   * @default false
+   */
+  newLine?: boolean
+}
+
+/**
  * 文件打开标志类型
  */
 export type FileFlag =

@@ -21,12 +21,12 @@
 
 ## 🌟 特性
 
-- 🔄 **异步创建实例** - 所有文件操作都是异步的，避免阻塞主线程
 - 📂 **深度递归遍历** - 轻松获取整个目录结构和所有子文件
 - 🔗 **父级指针引用** - 每个文件对象都有指向父级的引用，方便向上查找
-- 🛡️ **自动检查机制** - 创建文件时自动检查目录是否存在
+- 🛡️ **智能检测机制** - 自动检查目录是否存在，不存在则根据配置创建
 - 📏 **详细文件信息** - 获取文件大小、创建时间、修改时间等元数据
 - 🧠 **智能覆盖策略** - 支持安全的文件/目录覆盖操作
+- ⚙️ **灵活配置选项** - 可通过配置项自定义行为，满足不同需求
 
 ## 📦 安装
 
@@ -44,7 +44,7 @@ pnpm add @jl-org/file
 import { JlFile } from '@jl-org/file'
 
 // 创建文件实例
-const file = await JlFile.genFile('/path/to/file.txt')
+const file = JlFile.genFile('/path/to/file.txt')
 
 // 读取文件内容
 const content = await file.getContent('utf-8')
@@ -59,17 +59,32 @@ const allChildren = await JlFile.getAllChildren('/path/to/directory')
 const parent = allChildren[0].parent
 ```
 
-### 特殊行为说明
+### 智能特性说明
 
-`touch` 和 `mkdir` 方法具有特殊的行为：
+本库具有多种智能特性，让文件操作更加便捷：
 
-1. 当目标文件/目录已存在时：
-   - 如果 `overwrite` 选项为 `true`，则会删除现有文件/目录并创建新的
-   - 如果 `overwrite` 选项为 `false`（默认），则会打印警告信息而不是抛出异常
+1. **智能目录检测**：
+   - `readDir` 方法会自动检测目录是否存在，不存在时根据配置自动创建
+   - `touch` 和 `mkdir` 方法也有类似的智能检测机制
 
-2. 当创建文件时：
-   - 如果父目录不存在且 `autoCreateDir` 选项为 `true`（默认），会自动创建父目录
-   - 如果父目录不存在且 `autoCreateDir` 选项为 `false`，则会打印警告信息而不是抛出异常
+2. **智能覆盖策略**：
+   - 当目标文件/目录已存在时，可通过 `overwrite` 选项控制是否覆盖
+   - 默认情况下会打印警告信息而不是抛出异常
+
+3. **智能目录创建**：
+   - 创建文件时，如果父目录不存在且 `autoCreateDir` 为 `true`（默认），会自动创建父目录
+
+4. **深度递归遍历**：
+   - `getAllChildren` 方法可以深度递归获取所有子文件，并为每个文件对象添加父级指针引用
+
+5. **文件内容检查**：
+   - `isEmpty` 方法可以检查文件是否为空，支持去除空白字符的选项
+
+6. **文件内容追加**：
+   - `append` 方法可以在文件末尾追加内容，支持自动创建文件和添加换行符的选项
+
+7. **逐行读取文件**：
+   - `readLine` 方法可以逐行读取文件内容，返回异步迭代器
 
 ## 📚 API
 
@@ -77,7 +92,7 @@ const parent = allChildren[0].parent
 
 | 方法 | 描述 |
 |------|------|
-| `JlFile.genFile(path)` | 异步创建文件实例 |
+| `JlFile.genFile(path)` | 创建文件实例 |
 | `JlFile.readDir(path)` | 读取目录内容 |
 | `JlFile.mkdir(path, opts)` | 创建目录 |
 | `JlFile.touch(path, content, opts)` | 创建文件 |
@@ -96,8 +111,11 @@ const parent = allChildren[0].parent
 | `file.mv(newPath)` | 移动文件 |
 | `file.cp(newPath, opts)` | 复制文件 |
 | `file.write(content, opts)` | 写入文件 |
+| `file.append(content, opts?)` | 在文件末尾追加内容 |
 | `file.rm(opts)` | 删除文件 |
 | `file.isEqual(otherFile)` | 比较当前文件与另一个文件是否内容相同 |
+| `file.isEmpty(trim?)` | 检查文件是否为空 |
+| `file.readLine()` | 逐行读取文件内容 |
 | `file.getStats()` | 获取文件状态 |
 | `file.setPermissions(mode)` | 设置文件权限 |
 | `file.isReadable()` | 检查文件是否可读 |

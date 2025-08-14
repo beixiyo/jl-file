@@ -66,14 +66,14 @@ describe('File Creation and Deletion', () => {
       await JlFile.touch(newFile, 'content', { autoCreateDir: true, overwrite: false })
       expect(existsSync(newFile)).toBe(true)
 
-      const file = await JlFile.genFile(newFile)
+      const file = JlFile.genFile(newFile)
       const content = await file.getContent('utf-8')
       expect(content).toBe('content')
     })
 
     it('should overwrite existing file when overwrite is true', async () => {
       await JlFile.touch(testFile, 'new content', { autoCreateDir: true, overwrite: true })
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const content = await file.getContent('utf-8')
       expect(content).toBe('new content')
     })
@@ -91,19 +91,11 @@ describe('File Creation and Deletion', () => {
       warnSpy.mockRestore()
     })
 
-    it('should warn when directory does not exist and autoCreateDir is false', async () => {
+    it('should throw error when directory does not exist and autoCreateDir is false', async () => {
       const newFile = join(testDir, 'nonexistent', 'newfile.txt')
 
-      // Mock console.warn to capture the warning
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { })
-
-      await JlFile.touch(newFile, 'content', { autoCreateDir: false, overwrite: false })
-
-      // Check that console.warn was called with the expected message
-      expect(warnSpy).toHaveBeenCalledWith('dir is not exist (文件夹不存在)')
-
-      // Restore console.warn
-      warnSpy.mockRestore()
+      await expect(JlFile.touch(newFile, 'content', { autoCreateDir: false, overwrite: false }))
+        .rejects.toThrow(`Directory does not exist: ${join(testDir, 'nonexistent')}`)
 
       // File should not be created
       expect(existsSync(newFile)).toBe(false)
@@ -112,13 +104,13 @@ describe('File Creation and Deletion', () => {
 
   describe('rm', () => {
     it('should remove a file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       await file.rm({ force: true })
       expect(existsSync(testFile)).toBe(false)
     })
 
     it('should remove a directory', async () => {
-      const dir = await JlFile.genFile(testDirPath)
+      const dir = JlFile.genFile(testDirPath)
       await dir.rm({ recursive: true, force: true })
       expect(existsSync(testDirPath)).toBe(false)
     })

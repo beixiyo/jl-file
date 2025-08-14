@@ -29,16 +29,16 @@ describe('File Permissions and Attributes', () => {
 
   describe('permissions', () => {
     it('should get file stats', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
 
       // 获取文件状态
-      const stats = await file.getStats()
+      const stats = file.stats
       expect(typeof stats).toBe('object')
       expect(stats.isFile()).toBe(true)
     })
 
     it('should set file permissions', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
 
       // 注意：在 Windows 上权限设置可能不会完全按预期工作
       // 这里主要是测试 API 是否正常工作
@@ -47,7 +47,7 @@ describe('File Permissions and Attributes', () => {
         await file.setPermissions(0o644)
 
         // 验证权限是否改变
-        const newStats = await file.getStats()
+        const newStats = file.stats
         // 在某些系统上可能不会完全匹配，但应该是一个对象
         expect(typeof newStats).toBe('object')
       } catch (error) {
@@ -57,7 +57,7 @@ describe('File Permissions and Attributes', () => {
     })
 
     it('should check file access permissions', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
 
       // 检查可读性
       const readable = await file.isReadable()

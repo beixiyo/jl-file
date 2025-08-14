@@ -36,8 +36,8 @@ describe('File Comparison and Hashing', () => {
       writeFileSync(file1Path, 'same content')
       writeFileSync(file2Path, 'same content')
 
-      const file1 = await JlFile.genFile(file1Path)
-      const file2 = await JlFile.genFile(file2Path)
+      const file1 = JlFile.genFile(file1Path)
+      const file2 = JlFile.genFile(file2Path)
 
       const isEqual = await file1.isEqual(file2)
       expect(isEqual).toBe(true)
@@ -55,8 +55,8 @@ describe('File Comparison and Hashing', () => {
       writeFileSync(file1Path, 'content 1')
       writeFileSync(file2Path, 'content 2')
 
-      const file1 = await JlFile.genFile(file1Path)
-      const file2 = await JlFile.genFile(file2Path)
+      const file1 = JlFile.genFile(file1Path)
+      const file2 = JlFile.genFile(file2Path)
 
       const isEqual = await file1.isEqual(file2)
       expect(isEqual).toBe(false)
@@ -69,31 +69,31 @@ describe('File Comparison and Hashing', () => {
 
   describe('watch', () => {
     it('should watch file changes', async () => {
-      const file = await JlFile.genFile(testFile)
-      let changeCount = 0;
+      const file = JlFile.genFile(testFile)
+      let changeCount = 0
 
       // 设置监听器
       const stopWatching = file.watch((eventType) => {
-        changeCount++;
-      });
+        changeCount++
+      })
 
       // 修改文件
-      await file.write('updated content');
+      await file.write('updated content')
 
       // 等待事件触发
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // 停止监听
-      stopWatching();
+      stopWatching()
 
       // 验证至少有一次变化
-      expect(changeCount).toBeGreaterThan(0);
-    });
+      expect(changeCount).toBeGreaterThan(0)
+    })
   })
 
   describe('getHash', () => {
     it('should calculate file hash', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
 
       // 计算哈希值
       const hash = await file.getHash('sha256')
@@ -106,7 +106,7 @@ describe('File Comparison and Hashing', () => {
     })
 
     it('should throw error for directories', async () => {
-      const dir = await JlFile.genFile(testDir)
+      const dir = JlFile.genFile(testDir)
 
       // 尝试计算目录哈希值应该抛出错误
       await expect(dir.getHash('sha256')).rejects.toThrow('Cannot calculate hash for directories')

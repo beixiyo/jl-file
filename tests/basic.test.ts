@@ -29,7 +29,7 @@ describe('Basic File Operations', () => {
 
   describe('genFile', () => {
     it('should create a file instance for a file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       expect(file).toBeInstanceOf(JlFile)
       expect(file.isFile).toBe(true)
       expect(file.name).toBe('test.txt')
@@ -38,7 +38,7 @@ describe('Basic File Operations', () => {
     })
 
     it('should create a file instance for a directory', async () => {
-      const dir = await JlFile.genFile(testDir)
+      const dir = JlFile.genFile(testDir)
       expect(dir).toBeInstanceOf(JlFile)
       expect(dir.isFile).toBe(false)
       expect(dir.name).toBe('jlfile_basic_test')
@@ -51,6 +51,23 @@ describe('Basic File Operations', () => {
       expect(files).toHaveLength(2)
       expect(files.some(f => f.name === 'test.txt')).toBe(true)
       expect(files.some(f => f.name === 'subdir')).toBe(true)
+    })
+
+    it('should create directory when it does not exist and autoCreateDir is true', async () => {
+      const newDir = join(testDir, 'newdir')
+      expect(existsSync(newDir)).toBe(false)
+
+      const files = await JlFile.readDir(newDir, { autoCreateDir: true })
+      expect(existsSync(newDir)).toBe(true)
+      expect(files).toHaveLength(0)
+    })
+
+    it('should throw error when directory does not exist and autoCreateDir is false', async () => {
+      const nonExistentDir = join(testDir, 'nonexistent')
+      expect(existsSync(nonExistentDir)).toBe(false)
+
+      await expect(JlFile.readDir(nonExistentDir, { autoCreateDir: false }))
+        .rejects.toThrow('Directory does not exist')
     })
   })
 
@@ -70,20 +87,20 @@ describe('Basic File Operations', () => {
 
   describe('getContent', () => {
     it('should read file content as string', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const content = await file.getContent('utf-8')
       expect(content).toBe('Hello, world!')
     })
 
     it('should read file content as buffer', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const content = await file.getContent()
       expect(content).toBeInstanceOf(Buffer)
       expect(content?.toString()).toBe('Hello, world!')
     })
 
     it('should return null for directory', async () => {
-      const dir = await JlFile.genFile(testDir)
+      const dir = JlFile.genFile(testDir)
       const content = await dir.getContent()
       expect(content).toBeNull()
     })
@@ -91,7 +108,7 @@ describe('Basic File Operations', () => {
 
   describe('getChildren', () => {
     it('should get children of directory', async () => {
-      const dir = await JlFile.genFile(testDir)
+      const dir = JlFile.genFile(testDir)
       const children = await dir.getChildren()
       expect(children).toHaveLength(2)
       expect(children.some(f => f.name === 'test.txt')).toBe(true)
@@ -99,7 +116,7 @@ describe('Basic File Operations', () => {
     })
 
     it('should return empty array for file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const children = await file.getChildren()
       expect(children).toHaveLength(0)
     })

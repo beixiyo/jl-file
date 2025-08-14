@@ -21,12 +21,12 @@
 
 ## 🌟 Features
 
-- 🔄 **Async Instance Creation** - All file operations are asynchronous to avoid blocking the main thread
 - 📂 **Deep Recursive Traversal** - Easily get entire directory structures and all subfiles
 - 🔗 **Parent Pointer Reference** - Each file object has a reference to its parent for easy upward lookup
-- 🛡️ **Automatic Check Mechanism** - Automatically checks if directories exist when creating files
+- 🛡️ **Smart Detection Mechanism** - Automatically checks if directories exist and creates them based on configuration
 - 📏 **Detailed File Information** - Get metadata such as file size, creation time, and modification time
 - 🧠 **Smart Overwrite Strategy** - Supports safe file/directory overwrite operations
+- ⚙️ **Flexible Configuration Options** - Customize behavior through configuration options to meet different needs
 
 ## 📦 Installation
 
@@ -44,7 +44,7 @@ pnpm add @jl-org/file
 import { JlFile } from '@jl-org/file'
 
 // Create file instance
-const file = await JlFile.genFile('/path/to/file.txt')
+const file = JlFile.genFile('/path/to/file.txt')
 
 // Read file content
 const content = await file.getContent('utf-8')
@@ -59,17 +59,29 @@ const allChildren = await JlFile.getAllChildren('/path/to/directory')
 const parent = allChildren[0].parent
 ```
 
-### Special Behavior Notes
+### Smart Features
 
-The `touch` and `mkdir` methods have special behaviors:
+This library has several smart features that make file operations more convenient:
 
-1. When the target file/directory already exists:
-   - If the `overwrite` option is `true`, it will delete the existing file/directory and create a new one
-   - If the `overwrite` option is `false` (default), it will print a warning message instead of throwing an exception
+1. **Smart Directory Detection**:
+   - The `readDir` method automatically detects if a directory exists and creates it based on configuration if it doesn't
+   - `touch` and `mkdir` methods have similar smart detection mechanisms
 
-2. When creating a file:
-   - If the parent directory doesn't exist and the `autoCreateDir` option is `true` (default), it will automatically create the parent directory
-   - If the parent directory doesn't exist and the `autoCreateDir` option is `false`, it will print a warning message instead of throwing an exception
+2. **Smart Overwrite Strategy**:
+   - When a target file/directory already exists, the `overwrite` option controls whether to overwrite it
+   - By default, a warning message is printed instead of throwing an exception
+
+3. **Smart Directory Creation**:
+   - When creating a file, if the parent directory doesn't exist and `autoCreateDir` is `true` (default), the parent directory is automatically created
+
+5. **File Content Checking**:
+   - The `isEmpty` method can check if a file is empty, with an option to trim whitespace
+
+6. **File Content Appending**:
+   - The `append` method can append content to the end of a file, with options to automatically create the file and add a newline
+
+7. **Read File Line by Line**:
+   - The `readLine` method can read file content line by line, returning an async iterator
 
 ## 📚 API
 
@@ -77,7 +89,7 @@ The `touch` and `mkdir` methods have special behaviors:
 
 | Method | Description |
 |--------|-------------|
-| `JlFile.genFile(path)` | Asynchronously create a file instance |
+| `JlFile.genFile(path)` | create a file instance |
 | `JlFile.readDir(path)` | Read directory contents |
 | `JlFile.mkdir(path, opts)` | Create directory |
 | `JlFile.touch(path, content, opts)` | Create file |
@@ -96,8 +108,11 @@ The `touch` and `mkdir` methods have special behaviors:
 | `file.mv(newPath)` | Move file |
 | `file.cp(newPath, opts)` | Copy file |
 | `file.write(content, opts)` | Write to file |
+| `file.append(content, opts?)` | Append content to the end of file |
 | `file.rm(opts)` | Delete file |
 | `file.isEqual(otherFile)` | Compare if current file content is equal to another file |
+| `file.isEmpty(trim?)` | Check if file is empty |
+| `file.readLine()` | Read file content line by line |
 | `file.getStats()` | Get file stats |
 | `file.setPermissions(mode)` | Set file permissions |
 | `file.isReadable()` | Check if file is readable |
@@ -112,11 +127,3 @@ The `touch` and `mkdir` methods have special behaviors:
 npm run test       # Run tests (watch mode)
 npm run test:run   # Run tests (single execution)
 ```
-
-## 🤝 Contributing
-
-Issues and Pull Requests are welcome!
-
-## 📄 License
-
-MIT © CJL

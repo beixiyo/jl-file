@@ -29,7 +29,7 @@ describe('File Move and Copy Operations', () => {
 
   describe('rename', () => {
     it('should rename a file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const newName = 'renamed.txt'
       const newPath = join(testDir, newName)
 
@@ -41,7 +41,7 @@ describe('File Move and Copy Operations', () => {
 
   describe('mv', () => {
     it('should move a file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const newDir = join(testDir, 'movedir')
       mkdirSync(newDir)
       const newPath = join(newDir, 'test.txt')
@@ -54,19 +54,19 @@ describe('File Move and Copy Operations', () => {
 
   describe('cp', () => {
     it('should copy a file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       const copyPath = join(testDir, 'copy.txt')
 
       await file.cp(copyPath, {})
       expect(existsSync(copyPath)).toBe(true)
 
-      const copyFile = await JlFile.genFile(copyPath)
+      const copyFile = JlFile.genFile(copyPath)
       const content = await copyFile.getContent('utf-8')
       expect(content).toBe('Hello, world!')
     })
 
     it('should copy a directory', async () => {
-      const dir = await JlFile.genFile(testDirPath)
+      const dir = JlFile.genFile(testDirPath)
       const copyPath = join(testDir, 'copydir')
 
       await dir.cp(copyPath, { recursive: true })
@@ -76,7 +76,7 @@ describe('File Move and Copy Operations', () => {
 
   describe('write', () => {
     it('should write content to file', async () => {
-      const file = await JlFile.genFile(testFile)
+      const file = JlFile.genFile(testFile)
       await file.write('new content')
 
       const content = await file.getContent('utf-8')
